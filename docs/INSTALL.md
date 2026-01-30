@@ -42,7 +42,7 @@ sudo xbps-install -S base-devel libX11-devel libXinerama-devel \
 
 ## Quick Install
 
-### Method 1: Using install.sh (Recommended)
+### Method 1: Using install.sh 
 
 ```bash
 cd ~/uxwm
@@ -57,7 +57,7 @@ The installer will:
 4. Create configuration directory
 5. Set up `.xinitrc`
 
-### Method 2: Manual Installation
+### Method 2: Manual Installation (Recommended)
 
 ```bash
 # Build all components
