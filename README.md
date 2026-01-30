@@ -269,7 +269,7 @@ UX follows these core principles:
 
 See [ROADMAP.md](docs/ROADMAP.md) for details.
 
-## Community
+## Community - ( Is not created yet )
 
 - **GitHub:** [github.com/uxecosystem/ux](https://github.com)
 - **IRC:** #uxwm on Libera.Chat
