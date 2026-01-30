@@ -1,0 +1,68 @@
+#!/bin/sh
+# ux-session - Launch complete UX ecosystem
+
+UXTERM="${UXTERM:-uxterm}"
+UXCOMP="${UXCOMP:-uxcomp}"
+UXWM="${UXWM:-uxwm}"
+
+export TERM=xterm-256color
+
+logdir="${XDG_DATA_HOME:-$HOME/.local/share}/ux"
+mkdir -p "$logdir"
+exec > "$logdir/session.log" 2>&1
+
+echo "Starting UX session at $(date)"
+
+[ -f "$HOME/.Xresources" ] && xrdb -merge "$HOME/.Xresources"
+
+xset r rate 250 30
+xset s off
+xset -dpms
+
+if command -v "$UXCOMP" >/dev/null 2>&1; then
+    echo "Starting compositor..."
+    $UXCOMP &
+    sleep 0.5
+fi
+
+if command -v feh >/dev/null 2>&1 && [ -f "$HOME/.config/wallpaper" ]; then
+    echo "Setting wallpaper..."
+    feh --bg-scale "$HOME/.config/wallpaper" &
+fi
+
+{
+    while true; do
+        datetime=$(date '+%Y-%m-%d %H:%M')
+        
+        if [ -f /sys/class/power_supply/BAT0/capacity ]; then
+            battery="Bat: $(cat /sys/class/power_supply/BAT0/capacity)%"
+        else
+            battery=""
+        fi
+        
+        if command -v pactl >/dev/null 2>&1; then
+            volume=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+%' | head -1)
+            muted=$(pactl get-sink-mute @DEFAULT_SINK@ | grep -q yes && echo "M" || echo "V")
+            volume="$muted:$volume"
+        else
+            volume=""
+        fi
+        
+        cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+        mem=$(free -h | grep Mem | awk '{print $3}')
+        
+        status="CPU: ${cpu}% | Mem: $mem | $volume | $battery | $datetime"
+        
+        xsetroot -name "$status"
+        sleep 5
+    done
+} &
+
+autostart="$HOME/.config/ux/autostart"
+if [ -f "$autostart" ]; then
+    echo "Running autostart script..."
+    sh "$autostart" &
+fi
+
+echo "Starting window manager..."
+exec $UXWM
